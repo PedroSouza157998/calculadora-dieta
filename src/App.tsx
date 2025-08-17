@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import type { MealType } from './data/foodTable';
 import Refeicao from './components/Meal';
+import { Input } from './components/ui/input';
+import { Button } from './components/ui/button';
 
 function App() {
   const [refeicoes, setRefeicoes] = useState<MealType[]>([]);
@@ -32,36 +34,41 @@ function App() {
   }, 0);
 
   return (
-    <div className="flex justify-center min-h-screen bg-gray-100 font-sans">
-      <div className="container mx-auto p-4 md:p-8">
+    <div className="bg-slate-50 font-sans">
+      <div className="container mx-auto max-w-4xl p-4 md:p-8">
 
-        <header className="text-center mb-10">
-          <h1 className="text-4xl md:text-5xl font-extrabold text-green-700 text-center">
-            diet<span className="text-yellow-500">AI</span> 🥗
+        <header className="text-center mb-12">
+          <h1 className="text-5xl md:text-6xl font-extrabold text-slate-800">
+            diet<span className="text-green-500">AI</span>
           </h1>
-          <p className="text-gray-600 mt-2">Sua calculadora de dieta pessoal e inteligente</p>
+          <p className="text-slate-500 mt-3 text-lg">Sua calculadora de dieta pessoal e inteligente</p>
         </header>
 
-        <div className="bg-white p-6 rounded-lg shadow-lg mb-8">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Adicionar Nova Refeição</h2>
-          <form onSubmit={handleAddRefeicao} className="flex flex-col sm:flex-row gap-4">
-            <input
+        <div className="w-1/2 bg-white p-6 rounded-2xl shadow-lg m-auto mb-8 border rounded-lg border-slate-200" style={{paddingInline: 24}}>
+          <h2 className="text-2xl text-center font-bold text-slate-800 mb-4">Adicionar Nova Refeição</h2>
+          <form onSubmit={handleAddRefeicao}>
+            <div className="flex flex-col items-end sm:flex-row" style={{gap: 16, paddingBottom:  16}}>
+            <Input
               type="text"
               value={nomeRefeicao}
               onChange={(e) => setNomeRefeicao(e.target.value)}
+              style={{ padding: 6 }}
               placeholder="Ex: Café da Manhã"
-              className="flex-grow p-3 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
             />
-            <button
+            <Button
               type="submit"
-              className="bg-green-600 hover:bg-green-700 text-white border-none font-bold py-3 px-6 rounded-md shadow-md hover:shadow-lg transition-all duration-300"
+              variant="default"
+              className='border-none cursor-pointer w-fit'
+              style={{paddingInline: 24, paddingBlock: 8}}
+              // className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg shadow-md hover:shadow-lg transition-all duration-300"
             >
-              Criar Refeição
-            </button>
+              Criar
+            </Button>
+            </div>
           </form>
         </div>
 
-        <main>
+        <main className="space-y-6">
           {refeicoes.map(refeicao => (
             <Refeicao
               key={refeicao.id}
@@ -73,10 +80,11 @@ function App() {
         </main>
 
         {refeicoes.length > 0 && (
-          <footer className="mt-10 p-6 bg-green-700 text-white rounded-lg shadow-xl text-center sticky bottom-4">
-            <h2 className="text-3xl font-extrabold">
-              Total de Calorias: {Math.round(caloriasTotais)} kcal
+          <footer className="mt-12 p-6 bg-slate-800 text-white rounded-2xl shadow-xl text-center">
+            <h2 className="text-4xl font-extrabold">
+              <span className="text-green-400">{Math.round(caloriasTotais)}</span> kcal
             </h2>
+            <p className="text-slate-400 mt-1">Total de Calorias Consumidas</p>
           </footer>
         )}
 
