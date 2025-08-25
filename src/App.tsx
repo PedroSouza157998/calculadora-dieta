@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import type { MealType } from './data/foodTable';
+import type { MealType, FoodNaMeal } from './data/foodTable';
 import Refeicao from './components/Meal';
 import { Input } from './components/ui/input';
 import { Button } from './components/ui/button';
@@ -31,19 +31,19 @@ function App() {
   };
 
   const caloriasTotais = refeicoes.reduce((total, refeicao) => {
-    return total + refeicao.alimentos.reduce((subtotal: number, alimento: any) => subtotal + alimento.caloriasTotais, 0);
+    return total + refeicao.alimentos.reduce((subtotal: number, alimento: FoodNaMeal) => subtotal + alimento.caloriasTotais, 0);
   }, 0);
 
   const carboidratosTotais = refeicoes.reduce((total, refeicao) => {
-    return total + refeicao.alimentos.reduce((subtotal: number, alimento: any) => subtotal + alimento.carboidratosTotais, 0);
+    return total + refeicao.alimentos.reduce((subtotal: number, alimento: FoodNaMeal) => subtotal + alimento.carboidratosTotais, 0);
   }, 0);
 
   const proteinasTotais = refeicoes.reduce((total, refeicao) => {
-    return total + refeicao.alimentos.reduce((subtotal: number, alimento: any) => subtotal + alimento.proteinasTotais, 0);
+    return total + refeicao.alimentos.reduce((subtotal: number, alimento: FoodNaMeal) => subtotal + alimento.proteinasTotais, 0);
   }, 0);
 
   const gordurasTotais = refeicoes.reduce((total, refeicao) => {
-    return total + refeicao.alimentos.reduce((subtotal: number, alimento: any) => subtotal + alimento.gordurasTotais, 0);
+    return total + refeicao.alimentos.reduce((subtotal: number, alimento: FoodNaMeal) => subtotal + alimento.gordurasTotais, 0);
   }, 0);
 
   return (

@@ -3,6 +3,7 @@ import { tabelaFoods } from '../data/foodTable';
 import type { MealType, FoodNaMeal } from '../data/foodTable';
 import AsyncSelect from 'react-select/async';
 import { Button } from './ui/button';
+import { removeAcentos } from '@/lib/utils';
 
 interface RefeicaoProps {
   refeicao: MealType;
@@ -10,27 +11,30 @@ interface RefeicaoProps {
   onRemoveRefeicao: (id: number) => void;
 }
 
-const Refeicao: React.FC<RefeicaoProps> = ({ refeicao, onUpdateRefeicao, onRemoveRefeicao }) => {
-  const [alimento, setAlimento] = useState<{ value: string, label: string }>();
-  const [quantidade, setQuantidade] = useState<number>(0);
+type OptionType = { value: string; label: string };
 
-  const foodOptions = tabelaFoods.map(food => ({
+const Refeicao: React.FC<RefeicaoProps> = ({ refeicao, onUpdateRefeicao, onRemoveRefeicao }) => {
+  const [alimento, setAlimento] = useState<OptionType>();
+  const [quantidade, setQuantidade] = useState<number>(0);
+  const [referencia, setReferencia] = useState<string>("");
+
+  const foodOptions: OptionType[] = tabelaFoods.map(food => ({
     value: food.id.toString(),
     label: food.nome.charAt(0).toUpperCase() + food.nome.slice(1).toLowerCase(),
   }));
 
-  const filterColors = (inputValue: string) => {
+  const filterFood = (inputValue: string) => {
     return foodOptions.filter((i) =>
-      i.label.toLowerCase().includes(inputValue.toLowerCase())
+      removeAcentos(i.label).toLowerCase().includes(inputValue.toLowerCase())
     );
   };
 
   const loadOptions = (
     inputValue: string,
-    callback: (options: { label: string, value: string }[]) => void
+    callback: (options: OptionType[]) => void
   ) => {
     setTimeout(() => {
-      callback(filterColors(inputValue));
+      callback(filterFood(inputValue));
     }, 1000);
   };
 
@@ -41,6 +45,7 @@ const Refeicao: React.FC<RefeicaoProps> = ({ refeicao, onUpdateRefeicao, onRemov
     const novoAlimento: FoodNaMeal = {
       ...alimentoBase,
       quantidade,
+      referencia,
       caloriasTotais: (alimentoBase.calorias / alimentoBase.qtd) * quantidade,
       proteinasTotais: (alimentoBase.proteinas / alimentoBase.qtd) * quantidade,
       gordurasTotais: (alimentoBase.gorduras / alimentoBase.qtd) * quantidade,
@@ -61,10 +66,10 @@ const Refeicao: React.FC<RefeicaoProps> = ({ refeicao, onUpdateRefeicao, onRemov
     });
   };
 
-  const handleSelectAlimento = (option: { value: string, label: string }) => {
+  const handleSelectAlimento = (option: OptionType | null) => {
     if (option) setAlimento(option);
 
-    const alimentoBase = tabelaFoods.find(a => a.id === Number(option.value));
+    const alimentoBase = tabelaFoods.find(a => a.id === Number(option?.value));
     setQuantidade(alimentoBase?.qtd || 0);
     console.log(alimentoBase);
     if (!alimentoBase) return;
@@ -90,16 +95,16 @@ const Refeicao: React.FC<RefeicaoProps> = ({ refeicao, onUpdateRefeicao, onRemov
 
       <div className="flex flex-wrap gap-[6px] items-center gap-4 mb-[.5rem] pb-[.5rem] border-b border-slate-200">
         {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 pb-6 border-b border-slate-200"> */}
-        <AsyncSelect
+        <AsyncSelect<OptionType>
           className='w-full'
           value={alimento}
-          onChange={handleSelectAlimento as any}
+          onChange={handleSelectAlimento}
           noOptionsMessage={({ inputValue }) => {
             if (!inputValue) return "Digite para pesquisar...";
             return 'Nenhum alimento encontrado';
           }}
           loadingMessage={() => "Carregando..."}
-          loadOptions={loadOptions as any}
+          loadOptions={loadOptions}
           placeholder="Alimento"
         />
         {!!quantidade && <div className="grid grid-cols-1 md:grid-cols-1">
@@ -111,6 +116,16 @@ const Refeicao: React.FC<RefeicaoProps> = ({ refeicao, onUpdateRefeicao, onRemov
           className="col-span-1 md:col-span-1 p-[.5rem] border border-slate-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
         />
         <label className="text-[.75rem] text-[#949494] pl-[.25rem]">Quantidade em gramas</label>
+        </div>}
+        {!!quantidade && <div className="grid grid-cols-1 md:grid-cols-1">
+          <input
+          type="text"
+          value={referencia}
+          onChange={(e) => setReferencia(e.target.value)}
+          placeholder="Porção"
+          className="col-span-1 md:col-span-1 p-[.5rem] border border-slate-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
+        />
+        <label className="text-[.75rem] text-[#949494] pl-[.25rem]">Referência da porção</label>
         </div>}
         <Button
           variant="default"
@@ -126,7 +141,7 @@ const Refeicao: React.FC<RefeicaoProps> = ({ refeicao, onUpdateRefeicao, onRemov
           <li key={alimento.idUnico} className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
             <div>
               <span className="font-semibold text-slate-700">{alimento.nome.charAt(0).toUpperCase() + alimento.nome.slice(1).toLowerCase()}</span>
-              <span className="text-sm text-slate-500 ml-2">({alimento.quantidade}g)</span>
+              <span className="text-sm text-slate-500 ml-2">({alimento.quantidade}g - {alimento.referencia})</span>
             </div>
             <div className="flex items-center gap-4">
               <span className="font-bold text-slate-800">{Math.round(alimento.caloriasTotais)} kcal</span>

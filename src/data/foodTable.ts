@@ -28,6 +28,7 @@ export interface Food {
 export interface FoodNaMeal extends Food {
   idUnico: number; // ID único para a chave da lista no React
   quantidade: number; // em gramas
+  referencia: string;
   caloriasTotais: number;
   proteinasTotais: number;
   gordurasTotais: number;
