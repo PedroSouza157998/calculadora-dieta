@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { tabelaFoods } from '../data/foodTable';
 import type { MealType, FoodNaMeal } from '../data/foodTable';
+import AsyncSelect from 'react-select/async';
+import { Button } from './ui/button';
 
 interface RefeicaoProps {
   refeicao: MealType;
@@ -9,17 +11,37 @@ interface RefeicaoProps {
 }
 
 const Refeicao: React.FC<RefeicaoProps> = ({ refeicao, onUpdateRefeicao, onRemoveRefeicao }) => {
-  const [alimentoId, setAlimentoId] = useState<number>(tabelaFoods[0]?.id ?? 0);
-  const [quantidade, setQuantidade] = useState<number>(100);
+  const [alimento, setAlimento] = useState<{ value: string, label: string }>();
+  const [quantidade, setQuantidade] = useState<number>(0);
+
+  const foodOptions = tabelaFoods.map(food => ({
+    value: food.id.toString(),
+    label: food.nome.charAt(0).toUpperCase() + food.nome.slice(1).toLowerCase(),
+  }));
+
+  const filterColors = (inputValue: string) => {
+    return foodOptions.filter((i) =>
+      i.label.toLowerCase().includes(inputValue.toLowerCase())
+    );
+  };
+
+  const loadOptions = (
+    inputValue: string,
+    callback: (options: { label: string, value: string }[]) => void
+  ) => {
+    setTimeout(() => {
+      callback(filterColors(inputValue));
+    }, 1000);
+  };
 
   const handleAddAlimento = () => {
-    const alimentoBase = tabelaFoods.find(a => a.id === alimentoId);
+    const alimentoBase = tabelaFoods.find(a => a.id === Number(alimento?.value));
     if (!alimentoBase) return;
 
     const novoAlimento: FoodNaMeal = {
       ...alimentoBase,
       quantidade,
-      caloriasTotais: (alimentoBase.calorias * quantidade),
+      caloriasTotais: (alimentoBase.calorias / alimentoBase.qtd) * quantidade,
       idUnico: Date.now(),
     };
 
@@ -36,10 +58,19 @@ const Refeicao: React.FC<RefeicaoProps> = ({ refeicao, onUpdateRefeicao, onRemov
     });
   };
 
+  const handleSelectAlimento = (option: { value: string, label: string }) => {
+    if (option) setAlimento(option);
+
+    const alimentoBase = tabelaFoods.find(a => a.id === Number(option.value));
+    setQuantidade(alimentoBase?.qtd || 0);
+    console.log(alimentoBase);
+    if (!alimentoBase) return;
+  }
+
   const caloriasDaRefeicao = refeicao.alimentos.reduce((total, alim) => total + alim.caloriasTotais, 0);
 
   return (
-    <div className="bg-white p-6 rounded-2xl shadow-lg border border-slate-200">
+    <div className="flex flex-col gap-[1rem] bg-white p-[2rem] rounded-2xl shadow-lg border border-slate-200">
       <div className="flex justify-between items-center mb-4">
         <div>
           <h3 className="text-2xl font-bold text-slate-800">{refeicao.nome}</h3>
@@ -53,31 +84,37 @@ const Refeicao: React.FC<RefeicaoProps> = ({ refeicao, onUpdateRefeicao, onRemov
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 pb-6 border-b border-slate-200">
-        <select
-          value={alimentoId}
-          onChange={(e) => setAlimentoId(Number(e.target.value))}
-          className="col-span-1 md:col-span-1 p-3 border border-slate-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
-        >
-          {tabelaFoods.map(alimento => (
-            <option key={alimento.id} value={alimento.id}>
-              {alimento.nome.charAt(0).toUpperCase() + alimento.nome.slice(1).toLowerCase()}
-            </option>
-          ))}
-        </select>
-        <input
+      <div className="flex flex-wrap gap-[6px] items-center gap-4 mb-[.5rem] pb-[.5rem] border-b border-slate-200">
+        {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 pb-6 border-b border-slate-200"> */}
+        <AsyncSelect
+          className='w-full'
+          value={alimento}
+          onChange={handleSelectAlimento as any}
+          noOptionsMessage={({ inputValue }) => {
+            if (!inputValue) return "Digite para pesquisar...";
+            return 'Nenhum alimento encontrado';
+          }}
+          loadingMessage={() => "Carregando..."}
+          loadOptions={loadOptions as any}
+          placeholder="Alimento"
+        />
+        {!!quantidade && <div className="grid grid-cols-1 md:grid-cols-1">
+          <input
           type="number"
           value={quantidade}
           onChange={(e) => setQuantidade(Number(e.target.value))}
           placeholder="Gramas"
-          className="col-span-1 md:col-span-1 p-3 border border-slate-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
+          className="col-span-1 md:col-span-1 p-[.5rem] border border-slate-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
         />
-        <button
+        <label className="text-[.75rem] text-[#949494] pl-[.25rem]">Quantidade em gramas</label>
+        </div>}
+        <Button
+          variant="default"
           onClick={handleAddAlimento}
-          className="col-span-1 md:col-span-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-300"
+        // className="col-span-1 md:col-span-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-300"
         >
           Adicionar
-        </button>
+        </Button>
       </div>
 
       <ul className="space-y-3">

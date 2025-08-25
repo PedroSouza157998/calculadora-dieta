@@ -44,7 +44,7 @@ function App() {
           <p className="text-slate-500 mt-3 text-lg">Sua calculadora de dieta pessoal e inteligente</p>
         </header>
 
-        <div className="w-1/2 bg-white p-6 rounded-2xl shadow-lg m-auto mb-8 border rounded-lg border-slate-200" style={{paddingInline: 24}}>
+        <div className="w-1/2 bg-white p-[.5rem] mb-[1rem] rounded-2xl shadow-lg m-auto mb-8 border rounded-lg border-slate-200" style={{paddingInline: 24}}>
           <h2 className="text-2xl text-center font-bold text-slate-800 mb-4">Adicionar Nova Refeição</h2>
           <form onSubmit={handleAddRefeicao}>
             <div className="flex flex-col items-end sm:flex-row" style={{gap: 16, paddingBottom:  16}}>
@@ -87,6 +87,8 @@ function App() {
             <p className="text-slate-400 mt-1">Total de Calorias Consumidas</p>
           </footer>
         )}
+
+        
 
       </div>
     </div>

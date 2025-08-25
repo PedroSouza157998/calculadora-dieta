@@ -3,7 +3,7 @@ import foodData from './foodStatistics.json';
 // Interface que corresponde exatamente à estrutura de um item no seu JSON
 export interface FoodStatistic {
   description: string;
-  qtd_gram: string;
+  qtd_gram: number;
   kcal: number;
   protein: number;
   lipids: number;
@@ -16,6 +16,7 @@ export interface Food {
   id: number;
   nome: string;
   calorias: number; // Calorias por 100g
+  qtd: number;
   // Poderíamos adicionar mais campos aqui se quiséssemos exibi-los
 }
 
@@ -44,6 +45,7 @@ const processarDadosAlimentos = (): Food[] => {
     id: index, // Usamos o índice como um ID único para cada alimento
     nome: item.description,
     calorias: item.kcal,
+    qtd: item.qtd_gram
   }));
 };
 
