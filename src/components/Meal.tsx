@@ -79,12 +79,13 @@ const Refeicao: React.FC<RefeicaoProps> = ({ refeicao, onUpdateRefeicao, onRemov
           <h3 className="text-2xl font-bold text-slate-800">{refeicao.nome}</h3>
           <span className="text-green-500 font-semibold">{Math.round(caloriasDaRefeicao)} kcal</span>
         </div>
-        <button
+        <Button
+          variant="destructive"
           onClick={() => onRemoveRefeicao(refeicao.id)}
-          className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300"
+          className="text-[#FFF]"
         >
           Remover
-        </button>
+        </Button>
       </div>
 
       <div className="flex flex-wrap gap-[6px] items-center gap-4 mb-[.5rem] pb-[.5rem] border-b border-slate-200">
@@ -129,12 +130,13 @@ const Refeicao: React.FC<RefeicaoProps> = ({ refeicao, onUpdateRefeicao, onRemov
             </div>
             <div className="flex items-center gap-4">
               <span className="font-bold text-slate-800">{Math.round(alimento.caloriasTotais)} kcal</span>
-              <button
+              <Button
+                variant="destructive"
+                className="text-[#FFF] text-[1.5rem] p-[.5rem] h-[24px] w-[24px] ml-[1rem] rounded-full"
                 onClick={() => handleRemoveAlimento(alimento.idUnico)}
-                className="bg-slate-200 text-slate-600 hover:bg-red-200 hover:text-red-700 font-bold w-6 h-6 rounded-full flex items-center justify-center transition-colors duration-200"
               >
                 ×
-              </button>
+              </Button>
             </div>
           </li>
         ))}
