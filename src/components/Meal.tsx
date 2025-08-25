@@ -16,7 +16,8 @@ const Refeicao: React.FC<RefeicaoProps> = ({ refeicao, onUpdateRefeicao, onRemov
   const [alimento, setAlimento] = useState<OptionType>();
   const [quantidade, setQuantidade] = useState<number>(0);
   const [referencia, setReferencia] = useState<string>("");
-  const [table, setTable] = useState<'ibge' | 'taco'>("ibge");
+  // const [table, setTable] = useState<'ibge' | 'taco'>("ibge");
+  const table = 'ibge'
   
 
 
