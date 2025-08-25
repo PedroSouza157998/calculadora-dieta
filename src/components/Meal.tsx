@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
-import { tabelaFoods } from '../data/foodTable';
-import type { MealType, FoodNaMeal } from '../data/foodTable';
+import React, { useMemo, useState } from 'react';
+import { type MealType, type FoodNaMeal, processarDadosAlimentos } from '../data/foodTable';
 import AsyncSelect from 'react-select/async';
 import { Button } from './ui/button';
 import { removeAcentos } from '@/lib/utils';
@@ -17,6 +16,12 @@ const Refeicao: React.FC<RefeicaoProps> = ({ refeicao, onUpdateRefeicao, onRemov
   const [alimento, setAlimento] = useState<OptionType>();
   const [quantidade, setQuantidade] = useState<number>(0);
   const [referencia, setReferencia] = useState<string>("");
+  const [table, setTable] = useState<'ibge' | 'taco'>("ibge");
+  
+
+
+  const tabelaFoods = useMemo(() => processarDadosAlimentos(table), [table])
+
 
   const foodOptions: OptionType[] = tabelaFoods.map(food => ({
     value: food.id.toString(),
@@ -25,7 +30,7 @@ const Refeicao: React.FC<RefeicaoProps> = ({ refeicao, onUpdateRefeicao, onRemov
 
   const filterFood = (inputValue: string) => {
     return foodOptions.filter((i) =>
-      removeAcentos(i.label).toLowerCase().includes(inputValue.toLowerCase())
+      removeAcentos(i.label.toLowerCase()).includes(removeAcentos(inputValue.toLowerCase()))
     );
   };
 
@@ -57,6 +62,10 @@ const Refeicao: React.FC<RefeicaoProps> = ({ refeicao, onUpdateRefeicao, onRemov
       ...refeicao,
       alimentos: [...refeicao.alimentos, novoAlimento],
     });
+
+    setAlimento(undefined);
+    setQuantidade(0);
+    setReferencia("");
   };
 
   const handleRemoveAlimento = (idUnico: number) => {
@@ -75,14 +84,19 @@ const Refeicao: React.FC<RefeicaoProps> = ({ refeicao, onUpdateRefeicao, onRemov
     if (!alimentoBase) return;
   }
 
-  const caloriasDaRefeicao = refeicao.alimentos.reduce((total, alim) => total + alim.caloriasTotais, 0);
-
   return (
     <div className="flex flex-col gap-[1rem] bg-white p-[2rem] rounded-2xl shadow-lg border border-slate-200">
       <div className="flex justify-between items-center mb-4">
         <div>
           <h3 className="text-2xl font-bold text-slate-800">{refeicao.nome}</h3>
-          <span className="text-green-500 font-semibold">{Math.round(caloriasDaRefeicao)} kcal</span>
+          {/* <select 
+          value={table} 
+          onChange={(e) => { e && setTable(e.target.value as any) }}
+          className="col-span-1 md:col-span-1 p-[.5rem] border border-slate-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
+          >
+            <option value="ibge">IBGE</option>
+            <option value="taco">TACO</option>
+          </select> */}
         </div>
         <Button
           variant="destructive"
@@ -93,9 +107,9 @@ const Refeicao: React.FC<RefeicaoProps> = ({ refeicao, onUpdateRefeicao, onRemov
         </Button>
       </div>
 
-      <div className="flex flex-wrap gap-[6px] items-center gap-4 mb-[.5rem] pb-[.5rem] border-b border-slate-200">
+      <div className="flex flex-wrap gap-[6px] items-start gap-4 mb-[.5rem] pb-[.5rem] border-b border-slate-200">
         {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 pb-6 border-b border-slate-200"> */}
-        <AsyncSelect<OptionType>
+        <AsyncSelect
           className='w-full'
           value={alimento}
           onChange={handleSelectAlimento}
@@ -136,12 +150,12 @@ const Refeicao: React.FC<RefeicaoProps> = ({ refeicao, onUpdateRefeicao, onRemov
         </Button>
       </div>
 
-      <ul className="space-y-3">
+      <ul className="flex flex-col gap-[.5rem] space-y-3">
         {refeicao.alimentos.map(alimento => (
           <li key={alimento.idUnico} className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
             <div>
               <span className="font-semibold text-slate-700">{alimento.nome.charAt(0).toUpperCase() + alimento.nome.slice(1).toLowerCase()}</span>
-              <span className="text-sm text-slate-500 ml-2">({alimento.quantidade}g - {alimento.referencia})</span>
+              <span className="text-sm text-slate-500 ml-2">({alimento.referencia ? `${alimento.quantidade}g - ${alimento.referencia}` : `${alimento.quantidade}g`})</span>
             </div>
             <div className="flex items-center gap-4">
               <span className="font-bold text-slate-800">{Math.round(alimento.caloriasTotais)} kcal</span>

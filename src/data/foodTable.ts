@@ -45,9 +45,9 @@ export interface MealType {
 // --- PROCESSAMENTO DO JSON ---
 
 // Função que lê o JSON e o transforma em um formato útil para a aplicação
-const processarDadosAlimentos = (): Food[] => {
+export const processarDadosAlimentos = (tabela: 'ibge' | 'taco'): Food[] => {
   // Acessamos a chave "ibge" do JSON importado
-  const alimentosDoJson: FoodStatistic[] = foodData.ibge;
+  const alimentosDoJson: FoodStatistic[] = foodData[tabela];
 
   return alimentosDoJson.map((item, index) => ({
     id: index, // Usamos o índice como um ID único para cada alimento
@@ -61,4 +61,4 @@ const processarDadosAlimentos = (): Food[] => {
 };
 
 // Exportamos a lista de alimentos já processada e pronta para uso
-export const tabelaFoods: Food[] = processarDadosAlimentos();
+// export const tabelaFoods: Food[] = processarDadosAlimentos();
