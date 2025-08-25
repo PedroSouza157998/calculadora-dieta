@@ -7,8 +7,9 @@ export interface FoodStatistic {
   kcal: number;
   protein: number;
   lipids: number;
+  cho: number;
   // Adicione outras propriedades do JSON que queira usar no futuro
-  // Ex: cho: number; fiber: number; etc.
+  // Ex: fiber: number; etc.
 }
 
 // Interface para o Alimento processado, que a aplicação usará
@@ -17,6 +18,9 @@ export interface Food {
   nome: string;
   calorias: number; // Calorias por 100g
   qtd: number;
+  proteinas: number;
+  gorduras: number;
+  carboidratos: number;
   // Poderíamos adicionar mais campos aqui se quiséssemos exibi-los
 }
 
@@ -25,6 +29,9 @@ export interface FoodNaMeal extends Food {
   idUnico: number; // ID único para a chave da lista no React
   quantidade: number; // em gramas
   caloriasTotais: number;
+  proteinasTotais: number;
+  gordurasTotais: number;
+  carboidratosTotais: number;
 }
 
 // Interface para uma Refeição
@@ -45,7 +52,10 @@ const processarDadosAlimentos = (): Food[] => {
     id: index, // Usamos o índice como um ID único para cada alimento
     nome: item.description,
     calorias: item.kcal,
-    qtd: item.qtd_gram
+    qtd: item.qtd_gram,
+    proteinas: item.protein,
+    gorduras: item.lipids,
+    carboidratos: item.cho
   }));
 };
 

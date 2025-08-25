@@ -3,6 +3,7 @@ import type { MealType } from './data/foodTable';
 import Refeicao from './components/Meal';
 import { Input } from './components/ui/input';
 import { Button } from './components/ui/button';
+import Dashboard from './components/Dashboard';
 
 function App() {
   const [refeicoes, setRefeicoes] = useState<MealType[]>([]);
@@ -31,6 +32,18 @@ function App() {
 
   const caloriasTotais = refeicoes.reduce((total, refeicao) => {
     return total + refeicao.alimentos.reduce((subtotal: number, alimento: any) => subtotal + alimento.caloriasTotais, 0);
+  }, 0);
+
+  const carboidratosTotais = refeicoes.reduce((total, refeicao) => {
+    return total + refeicao.alimentos.reduce((subtotal: number, alimento: any) => subtotal + alimento.carboidratosTotais, 0);
+  }, 0);
+
+  const proteinasTotais = refeicoes.reduce((total, refeicao) => {
+    return total + refeicao.alimentos.reduce((subtotal: number, alimento: any) => subtotal + alimento.proteinasTotais, 0);
+  }, 0);
+
+  const gordurasTotais = refeicoes.reduce((total, refeicao) => {
+    return total + refeicao.alimentos.reduce((subtotal: number, alimento: any) => subtotal + alimento.gordurasTotais, 0);
   }, 0);
 
   return (
@@ -85,10 +98,15 @@ function App() {
               <span className="text-green-400">{Math.round(caloriasTotais)}</span> kcal
             </h2>
             <p className="text-slate-400 mt-1">Total de Calorias Consumidas</p>
+            <div className="mt-4">
+              <Dashboard
+                totalCarboidratos={carboidratosTotais}
+                totalProteinas={proteinasTotais}
+                totalGorduras={gordurasTotais}
+              />
+            </div>
           </footer>
         )}
-
-        
 
       </div>
     </div>

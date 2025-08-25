@@ -42,6 +42,9 @@ const Refeicao: React.FC<RefeicaoProps> = ({ refeicao, onUpdateRefeicao, onRemov
       ...alimentoBase,
       quantidade,
       caloriasTotais: (alimentoBase.calorias / alimentoBase.qtd) * quantidade,
+      proteinasTotais: (alimentoBase.proteinas / alimentoBase.qtd) * quantidade,
+      gordurasTotais: (alimentoBase.gorduras / alimentoBase.qtd) * quantidade,
+      carboidratosTotais: (alimentoBase.carboidratos / alimentoBase.qtd) * quantidade,
       idUnico: Date.now(),
     };
 
