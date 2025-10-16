@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useAuth0 } from "@auth0/auth0-react";
 import type { MealType, FoodNaMeal } from './data/foodTable';
 import Refeicao from './components/Meal';
 import { Input } from './components/ui/input';
@@ -8,6 +9,23 @@ import Dashboard from './components/Dashboard';
 function App() {
   const [refeicoes, setRefeicoes] = useState<MealType[]>([]);
   const [nomeRefeicao, setNomeRefeicao] = useState<string>('');
+
+  const {
+    isLoading, // Loading state, the SDK needs to reach Auth0 on load
+    isAuthenticated,
+    error,
+    loginWithRedirect: login, // Starts the login flow
+    logout: auth0Logout, // Starts the logout flow
+    user, // User profile
+  } = useAuth0();
+
+  const signup = () =>
+    login({ authorizationParams: { screen_hint: "signup" } });
+
+  const logout = () =>
+    auth0Logout({ logoutParams: { returnTo: window.location.origin } });
+
+  if (isLoading) return "Loading...";
 
   const handleAddRefeicao = (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,7 +64,7 @@ function App() {
     return total + refeicao.alimentos.reduce((subtotal: number, alimento: FoodNaMeal) => subtotal + alimento.gordurasTotais, 0);
   }, 0);
 
-  return (
+  return true ? (
     <div className="bg-slate-50 font-sans">
       <div className="container mx-auto max-w-4xl p-4 md:p-8">
 
@@ -110,6 +128,14 @@ function App() {
 
       </div>
     </div>
+  ) : (
+    <>
+      {error && <p>Error: {error.message}</p>}
+
+      <button onClick={signup}>Signup</button>
+
+      <button onClick={login}>Login</button>
+    </>
   );
 }
 

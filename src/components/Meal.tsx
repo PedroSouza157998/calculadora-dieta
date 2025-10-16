@@ -3,6 +3,7 @@ import { type MealType, type FoodNaMeal, processarDadosAlimentos } from '../data
 import AsyncSelect from 'react-select/async';
 import { Button } from './ui/button';
 import { removeAcentos } from '@/lib/utils';
+import { runLLM } from '@/services/llm.service';
 
 interface RefeicaoProps {
   refeicao: MealType;
@@ -18,7 +19,7 @@ const Refeicao: React.FC<RefeicaoProps> = ({ refeicao, onUpdateRefeicao, onRemov
   const [referencia, setReferencia] = useState<string>("");
   // const [table, setTable] = useState<'ibge' | 'taco'>("ibge");
   const table = 'ibge'
-  
+
 
 
   const tabelaFoods = useMemo(() => processarDadosAlimentos(table), [table])
@@ -44,18 +45,34 @@ const Refeicao: React.FC<RefeicaoProps> = ({ refeicao, onUpdateRefeicao, onRemov
     }, 1000);
   };
 
-  const handleAddAlimento = () => {
+  const handleAddAlimento = async () => {
     const alimentoBase = tabelaFoods.find(a => a.id === Number(alimento?.value));
     if (!alimentoBase) return;
+    console.log(alimentoBase)
+
+    let total_grams = quantidade;
+    if (referencia) {
+      const { grams } = await runLLM(
+        `Eu estou lhe utilizando para alimentar a minha aplicação,
+        com base no alimento ${alimentoBase.nome} quantos gramas tem uma porção de 1 ${referencia}?
+        Responda no formato json: { 'grams': '' }
+        `)
+
+        total_grams = grams * quantidade
+    }
+
+    console.log({total_grams, quantidade, referencia  })
+
+    console.log(total_grams)
 
     const novoAlimento: FoodNaMeal = {
       ...alimentoBase,
-      quantidade,
+      quantidade: total_grams,
       referencia,
-      caloriasTotais: (alimentoBase.calorias / alimentoBase.qtd) * quantidade,
-      proteinasTotais: (alimentoBase.proteinas / alimentoBase.qtd) * quantidade,
-      gordurasTotais: (alimentoBase.gorduras / alimentoBase.qtd) * quantidade,
-      carboidratosTotais: (alimentoBase.carboidratos / alimentoBase.qtd) * quantidade,
+      caloriasTotais: (alimentoBase.calorias / alimentoBase.qtd) * total_grams,
+      proteinasTotais: (alimentoBase.proteinas / alimentoBase.qtd) * total_grams,
+      gordurasTotais: (alimentoBase.gorduras / alimentoBase.qtd) * total_grams,
+      carboidratosTotais: (alimentoBase.carboidratos / alimentoBase.qtd) * total_grams,
       idUnico: Date.now(),
     };
 
@@ -124,23 +141,32 @@ const Refeicao: React.FC<RefeicaoProps> = ({ refeicao, onUpdateRefeicao, onRemov
         />
         {!!quantidade && <div className="grid grid-cols-1 md:grid-cols-1">
           <input
-          type="number"
-          value={quantidade}
-          onChange={(e) => setQuantidade(Number(e.target.value))}
-          placeholder="Gramas"
-          className="col-span-1 md:col-span-1 p-[.5rem] border border-slate-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
-        />
-        <label className="text-[.75rem] text-[#949494] pl-[.25rem]">Quantidade em gramas</label>
+            type="number"
+            value={quantidade}
+            onChange={(e) => setQuantidade(Number(e.target.value))}
+            placeholder="Gramas"
+            className="col-span-1 md:col-span-1 p-[.5rem] border border-slate-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
+          />
+          <label className="text-[.75rem] text-[#949494] pl-[.25rem]">Quantidade</label>
         </div>}
         {!!quantidade && <div className="grid grid-cols-1 md:grid-cols-1">
-          <input
-          type="text"
-          value={referencia}
-          onChange={(e) => setReferencia(e.target.value)}
-          placeholder="Porção"
-          className="col-span-1 md:col-span-1 p-[.5rem] border border-slate-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
-        />
-        <label className="text-[.75rem] text-[#949494] pl-[.25rem]">Referência da porção</label>
+          <select
+            value={referencia}
+            onChange={(e) => {
+              if (!e.target.value) setQuantidade(100)
+              else setQuantidade(1)
+              setReferencia(e.target.value)
+            }}
+            className="col-span-1 md:col-span-1 p-[.5rem] border border-slate-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
+          >
+            <option value="">Gramas</option>
+            <option value="colher_cha">Colher de chá</option>
+            <option value="colher_sopa">Colher de sopa</option>
+            <option value="concha">Concha</option>
+            <option value="xicara">Xícara</option>
+            <option value="unidade">Unidade</option>
+          </select>
+          <label className="text-[.75rem] text-[#949494] pl-[.25rem]">Referência da porção</label>
         </div>}
         <Button
           variant="default"
