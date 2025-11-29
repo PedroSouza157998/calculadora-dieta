@@ -53,21 +53,22 @@ const Refeicao: React.FC<RefeicaoProps> = ({ refeicao, onUpdateRefeicao, onRemov
     let total_grams = quantidade;
     if (referencia) {
       const { grams } = await runLLM(
-        `Eu estou lhe utilizando para alimentar a minha aplicação,
+        `Eu estou lhe utilizando para alimentar a minha aplicação com dados de refeições,
         com base no alimento ${alimentoBase.nome} quantos gramas tem uma porção de 1 ${referencia}?
         Responda no formato json: { 'grams': '' }
         `)
 
-        total_grams = grams * quantidade
+      total_grams = grams * quantidade
     }
 
-    console.log({total_grams, quantidade, referencia  })
+    console.log({ total_grams, quantidade, referencia })
 
     console.log(total_grams)
 
     const novoAlimento: FoodNaMeal = {
       ...alimentoBase,
       quantidade: total_grams,
+      quantidadePorcao: quantidade,
       referencia,
       caloriasTotais: (alimentoBase.calorias / alimentoBase.qtd) * total_grams,
       proteinasTotais: (alimentoBase.proteinas / alimentoBase.qtd) * total_grams,
@@ -85,6 +86,7 @@ const Refeicao: React.FC<RefeicaoProps> = ({ refeicao, onUpdateRefeicao, onRemov
     setQuantidade(0);
     setReferencia("");
   };
+  console.log(refeicao)
 
   const handleRemoveAlimento = (idUnico: number) => {
     onUpdateRefeicao({
@@ -119,13 +121,13 @@ const Refeicao: React.FC<RefeicaoProps> = ({ refeicao, onUpdateRefeicao, onRemov
         <Button
           variant="destructive"
           onClick={() => onRemoveRefeicao(refeicao.id)}
-          className="text-[#FFF]"
+          className="text-[#FFF] no-print"
         >
           Remover
         </Button>
       </div>
 
-      <div className="flex flex-wrap gap-[6px] items-start gap-4 mb-[.5rem] pb-[.5rem] border-b border-slate-200">
+      <div className="flex flex-wrap gap-[6px] items-start gap-4 mb-[.5rem] pb-[.5rem] border-b border-slate-200 no-print">
         {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 pb-6 border-b border-slate-200"> */}
         <AsyncSelect
           className='w-full'
@@ -142,8 +144,8 @@ const Refeicao: React.FC<RefeicaoProps> = ({ refeicao, onUpdateRefeicao, onRemov
         {!!quantidade && <div className="grid grid-cols-1 md:grid-cols-1">
           <input
             type="number"
-            value={quantidade}
-            onChange={(e) => setQuantidade(Number(e.target.value))}
+            value={quantidade || 0}
+            onChange={(e) => setQuantidade(Number(e.target.value) || 1)}
             placeholder="Gramas"
             className="col-span-1 md:col-span-1 p-[.5rem] border border-slate-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
           />
@@ -182,13 +184,13 @@ const Refeicao: React.FC<RefeicaoProps> = ({ refeicao, onUpdateRefeicao, onRemov
           <li key={alimento.idUnico} className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
             <div>
               <span className="font-semibold text-slate-700">{alimento.nome.charAt(0).toUpperCase() + alimento.nome.slice(1).toLowerCase()}</span>
-              <span className="text-sm text-slate-500 ml-2">({alimento.referencia ? `${alimento.quantidade}g - ${alimento.referencia}` : `${alimento.quantidade}g`})</span>
+              <span className="text-sm text-slate-500 ml-2">({alimento.referencia ? `${alimento.quantidadePorcao} - ${alimento.referencia}` : `${alimento.quantidade}g`})</span>
             </div>
             <div className="flex items-center gap-4">
               <span className="font-bold text-slate-800">{Math.round(alimento.caloriasTotais)} kcal</span>
               <Button
                 variant="destructive"
-                className="text-[#FFF] text-[1.5rem] p-[.5rem] h-[24px] w-[24px] ml-[1rem] rounded-full"
+                className="text-[#FFF] text-[1.5rem] p-[.5rem] h-[24px] w-[24px] ml-[1rem] rounded-full no-print"
                 onClick={() => handleRemoveAlimento(alimento.idUnico)}
               >
                 ×

@@ -11,21 +11,18 @@ function App() {
   const [nomeRefeicao, setNomeRefeicao] = useState<string>('');
 
   const {
-    isLoading, // Loading state, the SDK needs to reach Auth0 on load
+    isLoading,
     isAuthenticated,
-    error,
-    loginWithRedirect: login, // Starts the login flow
-    logout: auth0Logout, // Starts the logout flow
-    user, // User profile
+    loginWithRedirect: login,
+    logout: auth0Logout,
+    user,
   } = useAuth0();
 
-  const signup = () =>
-    login({ authorizationParams: { screen_hint: "signup" } });
-
+  const LoadingPage = <div className="flex justify-center items-center h-[100vh]"> Loading... </div>
   const logout = () =>
     auth0Logout({ logoutParams: { returnTo: window.location.origin } });
 
-  if (isLoading) return "Loading...";
+  if (isLoading) return LoadingPage;
 
   const handleAddRefeicao = (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,6 +37,8 @@ function App() {
     setNomeRefeicao('');
   };
 
+  login && !user && login()
+  
   const handleUpdateRefeicao = (refeicaoAtualizada: MealType) => {
     setRefeicoes(refeicoes.map(r => r.id === refeicaoAtualizada.id ? refeicaoAtualizada : r));
   };
@@ -64,9 +63,14 @@ function App() {
     return total + refeicao.alimentos.reduce((subtotal: number, alimento: FoodNaMeal) => subtotal + alimento.gordurasTotais, 0);
   }, 0);
 
-  return true ? (
+  return isAuthenticated ? (
     <div className="bg-slate-50 font-sans">
       <div className="container mx-auto max-w-4xl p-4 md:p-8">
+
+        <div className="flex justify-between items-center mb-4 no-print">
+          <button onClick={logout} className="text-slate-500 hover:text-slate-700">Logout</button>
+          <Button onClick={() => window.print()} variant="outline">Imprimir Dieta</Button>
+        </div>
 
         <header className="text-center mb-12">
           <h1 className="text-5xl md:text-6xl font-extrabold text-slate-800">
@@ -75,26 +79,26 @@ function App() {
           <p className="text-slate-500 mt-3 text-lg">Sua calculadora de dieta pessoal e inteligente</p>
         </header>
 
-        <div className="w-1/2 bg-white p-[.5rem] mb-[1rem] rounded-2xl shadow-lg m-auto mb-8 border rounded-lg border-slate-200" style={{paddingInline: 24}}>
+        <div className="w-1/2 bg-white p-[.5rem] mb-[1rem] rounded-2xl shadow-lg m-auto mb-8 border rounded-lg border-slate-200 no-print" style={{ paddingInline: 24 }}>
           <h2 className="text-2xl text-center font-bold text-slate-800 mb-4">Adicionar Nova Refeição</h2>
           <form onSubmit={handleAddRefeicao}>
-            <div className="flex flex-col items-end sm:flex-row" style={{gap: 16, paddingBottom:  16}}>
-            <Input
-              type="text"
-              value={nomeRefeicao}
-              onChange={(e) => setNomeRefeicao(e.target.value)}
-              style={{ padding: 6 }}
-              placeholder="Ex: Café da Manhã"
-            />
-            <Button
-              type="submit"
-              variant="default"
-              className='border-none cursor-pointer w-fit'
-              style={{paddingInline: 24, paddingBlock: 8}}
+            <div className="flex flex-col items-end sm:flex-row" style={{ gap: 16, paddingBottom: 16 }}>
+              <Input
+                type="text"
+                value={nomeRefeicao}
+                onChange={(e) => setNomeRefeicao(e.target.value)}
+                style={{ padding: 6 }}
+                placeholder="Ex: Café da Manhã"
+              />
+              <Button
+                type="submit"
+                variant="default"
+                className='border-none cursor-pointer w-fit'
+                style={{ paddingInline: 24, paddingBlock: 8 }}
               // className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg shadow-md hover:shadow-lg transition-all duration-300"
-            >
-              Criar
-            </Button>
+              >
+                Criar
+              </Button>
             </div>
           </form>
         </div>
@@ -128,15 +132,7 @@ function App() {
 
       </div>
     </div>
-  ) : (
-    <>
-      {error && <p>Error: {error.message}</p>}
-
-      <button onClick={signup}>Signup</button>
-
-      <button onClick={login}>Login</button>
-    </>
-  );
+  ) : LoadingPage;
 }
 
 export default App;
