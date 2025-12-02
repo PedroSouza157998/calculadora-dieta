@@ -18,13 +18,18 @@ export const runLLM = async (prompt: string) => {
       result.candidates?.length &&
         result.candidates[0]?.content?.parts?.length &&
         typeof result.candidates[0].content.parts[0]?.text === "string"
-        ? result.candidates[0].content.parts[0].text.replace(/`/g, '').replace('json', '')
+        ? result.candidates[0].content.parts[0].text
         : '';
+    
+    const jsonRegex = /```json\s*([\s\S]*?)\s*```/;
+    const match = response.match(jsonRegex);
 
-    if (!response) throw new Error("No response from Gemini API.")
-      const data = JSON.parse(response)
+    if (!match || !match[1]) {
+      throw new Error("No valid JSON response from Gemini API.");
+    }
+
+    const data = JSON.parse(match[1]);
     console.log("Response from Gemini API:", data)
-    // const text = response.text();
     return data;
   } catch (error) {
     console.error("Error calling Gemini API:", error);

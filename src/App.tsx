@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
 import { useAuth0 } from "@auth0/auth0-react";
-import type { MealType, FoodNaMeal } from './data/foodTable';
+import type { MealType } from './data/foodTable';
 import Refeicao from './components/Meal';
 import { Input } from './components/ui/input';
 import { Button } from './components/ui/button';
+import GenerateDietModal from './components/GenerateDietModal';
 import Dashboard from './components/Dashboard';
 
 function App() {
   const [refeicoes, setRefeicoes] = useState<MealType[]>([]);
   const [nomeRefeicao, setNomeRefeicao] = useState<string>('');
+  const [targetCalories, setTargetCalories] = useState<number>(2000);
 
   const {
     isLoading,
@@ -40,7 +42,20 @@ function App() {
   login && !user && login()
   
   const handleUpdateRefeicao = (refeicaoAtualizada: MealType) => {
-    setRefeicoes(refeicoes.map(r => r.id === refeicaoAtualizada.id ? refeicaoAtualizada : r));
+    const refeicoesAtualizadas = refeicoes.map(r => {
+      if (r.id === refeicaoAtualizada.id) {
+        const alimentosAtualizados = refeicaoAtualizada.alimentos.map(alimento => ({
+          ...alimento,
+          caloriasTotais: alimento.calorias * (alimento.quantidade / 100),
+          carboidratosTotais: alimento.carboidratos * (alimento.quantidade / 100),
+          proteinasTotais: alimento.proteinas * (alimento.quantidade / 100),
+          gordurasTotais: alimento.gorduras * (alimento.quantidade / 100),
+        }));
+        return { ...refeicaoAtualizada, alimentos: alimentosAtualizados };
+      }
+      return r;
+    });
+    setRefeicoes(refeicoesAtualizadas);
   };
 
   const handleRemoveRefeicao = (id: number) => {
@@ -48,19 +63,19 @@ function App() {
   };
 
   const caloriasTotais = refeicoes.reduce((total, refeicao) => {
-    return total + refeicao.alimentos.reduce((subtotal: number, alimento: FoodNaMeal) => subtotal + alimento.caloriasTotais, 0);
+    return total + refeicao.alimentos.reduce((subtotal, alimento) => subtotal + (alimento.calorias * (alimento.quantidade / 100)), 0);
   }, 0);
 
   const carboidratosTotais = refeicoes.reduce((total, refeicao) => {
-    return total + refeicao.alimentos.reduce((subtotal: number, alimento: FoodNaMeal) => subtotal + alimento.carboidratosTotais, 0);
+    return total + refeicao.alimentos.reduce((subtotal, alimento) => subtotal + (alimento.carboidratos * (alimento.quantidade / 100)), 0);
   }, 0);
 
   const proteinasTotais = refeicoes.reduce((total, refeicao) => {
-    return total + refeicao.alimentos.reduce((subtotal: number, alimento: FoodNaMeal) => subtotal + alimento.proteinasTotais, 0);
+    return total + refeicao.alimentos.reduce((subtotal, alimento) => subtotal + (alimento.proteinas * (alimento.quantidade / 100)), 0);
   }, 0);
 
   const gordurasTotais = refeicoes.reduce((total, refeicao) => {
-    return total + refeicao.alimentos.reduce((subtotal: number, alimento: FoodNaMeal) => subtotal + alimento.gordurasTotais, 0);
+    return total + refeicao.alimentos.reduce((subtotal, alimento) => subtotal + (alimento.gorduras * (alimento.quantidade / 100)), 0);
   }, 0);
 
   return isAuthenticated ? (
@@ -69,7 +84,14 @@ function App() {
 
         <div className="flex justify-between items-center mb-4 no-print">
           <Button onClick={logout} variant="destructive" className="font-bold">Desconectar</Button>
-          <Button onClick={() => window.print()} variant="outline" className="font-bold">Imprimir Dieta</Button>
+          <div className='flex' style={{ gap: 16 }}>
+            <GenerateDietModal 
+              setRefeicoes={setRefeicoes} 
+              targetCalories={targetCalories}
+              setTargetCalories={setTargetCalories}
+            />
+            <Button onClick={() => window.print()} variant="outline" className="font-bold">Imprimir Dieta</Button>
+          </div>
         </div>
 
         <header className="text-center mb-12">
@@ -95,7 +117,6 @@ function App() {
                 variant="default"
                 className='border-none cursor-pointer w-fit'
                 style={{ paddingInline: 24, paddingBlock: 8 }}
-              // className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg shadow-md hover:shadow-lg transition-all duration-300"
               >
                 Criar
               </Button>

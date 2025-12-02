@@ -2,10 +2,13 @@
 export default {
   content: [
     "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}", // Garante que o Tailwind leia seus arquivos TSX
+    "./src/**/*.{js,ts,jsx,tsx}",
+    "./src/*.{js,ts,jsx,tsx}", // Garante que o Tailwind leia seus arquivos TSX
   ],
   theme: {
     extend: {},
   },
-  plugins: [],
+  plugins: [
+    require('tailwindcss-radix'),
+  ],
 }
