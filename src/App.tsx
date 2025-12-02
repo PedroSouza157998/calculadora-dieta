@@ -68,8 +68,8 @@ function App() {
       <div className="container mx-auto max-w-4xl p-4 md:p-8">
 
         <div className="flex justify-between items-center mb-4 no-print">
-          <button onClick={logout} className="text-slate-500 hover:text-slate-700">Logout</button>
-          <Button onClick={() => window.print()} variant="outline">Imprimir Dieta</Button>
+          <Button onClick={logout} variant="destructive" className="font-bold">Desconectar</Button>
+          <Button onClick={() => window.print()} variant="outline" className="font-bold">Imprimir Dieta</Button>
         </div>
 
         <header className="text-center mb-12">
@@ -115,7 +115,7 @@ function App() {
         </main>
 
         {refeicoes.length > 0 && (
-          <footer className="mt-12 p-6 bg-slate-800 text-white rounded-2xl shadow-xl text-center">
+          <footer className="mt-12 p-6 bg-slate-800 rounded-2xl shadow-xl text-center">
             <h2 className="text-4xl font-extrabold">
               <span className="text-green-400">{Math.round(caloriasTotais)}</span> kcal
             </h2>
