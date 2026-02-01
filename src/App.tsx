@@ -12,19 +12,19 @@ function App() {
   const [nomeRefeicao, setNomeRefeicao] = useState<string>('');
   const [targetCalories, setTargetCalories] = useState<number>(2000);
 
-  const {
-    isLoading,
-    isAuthenticated,
-    loginWithRedirect: login,
-    logout: auth0Logout,
-    user,
-  } = useAuth0();
+  // const {
+  //   isLoading,
+  //   isAuthenticated,
+  //   loginWithRedirect: login,
+  //   logout: auth0Logout,
+  //   user,
+  // } = useAuth0();
 
   const LoadingPage = <div className="flex justify-center items-center h-[100vh]"> Loading... </div>
-  const logout = () =>
-    auth0Logout({ logoutParams: { returnTo: window.location.origin } });
+  // const logout = () =>
+  //   auth0Logout({ logoutParams: { returnTo: window.location.origin } });
 
-  if (isLoading) return LoadingPage;
+  // if (isLoading) return LoadingPage;
 
   const handleAddRefeicao = (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,7 +39,7 @@ function App() {
     setNomeRefeicao('');
   };
 
-  login && !user && login()
+  // login && !user && login()
   
   const handleUpdateRefeicao = (refeicaoAtualizada: MealType) => {
     const refeicoesAtualizadas = refeicoes.map(r => {
@@ -78,11 +78,12 @@ function App() {
     return total + refeicao.alimentos.reduce((subtotal, alimento) => subtotal + (alimento.gorduras * (alimento.quantidade / 100)), 0);
   }, 0);
 
-  return isAuthenticated ? (
+  // return isAuthenticated ? 
+  (
     <div className="bg-slate-50 font-sans">
       <div className="container mx-auto max-w-4xl p-4 md:p-8">
 
-        <div className="flex justify-between items-center mb-4 no-print">
+        {/* <div className="flex justify-between items-center mb-4 no-print">
           <Button onClick={logout} variant="destructive" className="font-bold">Desconectar</Button>
           <div className='flex' style={{ gap: 16 }}>
             <GenerateDietModal 
@@ -92,7 +93,7 @@ function App() {
             />
             <Button onClick={() => window.print()} variant="outline" className="font-bold">Imprimir Dieta</Button>
           </div>
-        </div>
+        </div> */}
 
         <header className="text-center mb-12">
           <h1 className="text-5xl md:text-6xl font-extrabold text-slate-800">
@@ -153,7 +154,8 @@ function App() {
 
       </div>
     </div>
-  ) : LoadingPage;
+  )
+  //  : LoadingPage;
 }
 
 export default App;
