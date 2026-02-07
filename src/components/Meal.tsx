@@ -3,7 +3,7 @@ import { type MealType, type FoodNaMeal, processarDadosAlimentos } from '../data
 import AsyncSelect from 'react-select/async';
 import { Button } from './ui/button';
 import { removeAcentos } from '@/lib/utils';
-import { runLLM } from '@/services/llm.service';
+import api from '@/services/api';
 
 interface RefeicaoProps {
   refeicao: MealType;
@@ -52,13 +52,18 @@ const Refeicao: React.FC<RefeicaoProps> = ({ refeicao, onUpdateRefeicao, onRemov
 
     let total_grams = quantidade;
     if (referencia) {
-      const { grams } = await runLLM(
-        `Eu estou lhe utilizando para alimentar a minha aplicação com dados de refeições,
-        com base no alimento ${alimentoBase.nome} quantos gramas tem uma porção de 1 ${referencia}?
-        Responda no formato json: { 'grams': '' }
-        `)
+      const {data: result, status} = await api.get("get-portion", {
+        params: {
+          foodName: alimentoBase.nome,
+          portion: referencia
+        }
+      });
 
-      total_grams = grams * quantidade
+      if(status === 200) {
+        const {grams} = result;
+        total_grams = grams * quantidade
+      }
+
     }
 
     console.log({ total_grams, quantidade, referencia })
