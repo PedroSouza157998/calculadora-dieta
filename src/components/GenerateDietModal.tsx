@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
-import { runLLM } from '../services/llm.service';
 import type { MealType } from '../data/foodTable';
-import foodStatistics from '../data/foodStatistics.json';
+import api from '@/services/api';
 
 interface CustomModalProps {
   isOpen: boolean;
@@ -39,23 +38,18 @@ const GenerateDietModal: React.FC<GenerateDietModalProps> = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleGenerateDiet = async () => {
-    const simplifiedFoodData = (foodStatistics.ibge as any[]).concat(foodStatistics.taco).map((food: any, index: number) => ({
-      id: index,
-      nome: food.description,
-      calorias: food.kcal,
-      carboidratos: food.cho,
-      proteinas: food.protein,
-      gorduras: food.lipids,
-    }));
 
-    const foodData = JSON.stringify(simplifiedFoodData);
-    const prompt = `Crie uma dieta de ${dietType} com aproximadamente ${targetCalories} calorias, dividida em 5 a 6 refeições (Café da Manhã, lanche (manhã), Almoço, lanche(tarde), Jantar, ceia).
-    Utilize apenas os alimentos disponíveis na seguinte lista: ${foodData}.
-    ${allergies ? `Não inclua os seguintes alimentos: ${allergies}.` : ''}
-    Retorne a resposta em formato JSON, como um array de objetos, onde cada objeto representa uma refeição e deve ter o seguinte formato: {id: <id da refeicao>, nome: <nome da refeicao>, alimentos: [{id: <id do alimento>, nome: <nome do alimento>, quantidade: <quantidade em gramas>, calorias: <calorias>, carboidratos: <carboidratos>, proteinas: <proteinas>, gorduras: <gorduras>}]}.
-    A resposta deve ser apenas o JSON, sem nenhum texto adicional.`;
+    const {data: newRefeicoes, status} = await api.post('generate-diet', {
+      body: {
+        dietType, 
+        allergies, 
+        targetCalories
+      }
+    });
 
-    const newRefeicoes = await runLLM(prompt);
+    if(status !== 200) {
+      return console.log("Erro ao gerar dieta")
+    }
 
     const refeicoesComTotais = newRefeicoes.map((refeicao: MealType) => ({
       ...refeicao,

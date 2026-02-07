@@ -79,12 +79,12 @@ function App() {
   }, 0);
 
   // return isAuthenticated ? 
-  (
+  return (
     <div className="bg-slate-50 font-sans">
       <div className="container mx-auto max-w-4xl p-4 md:p-8">
 
-        {/* <div className="flex justify-between items-center mb-4 no-print">
-          <Button onClick={logout} variant="destructive" className="font-bold">Desconectar</Button>
+        <div className="flex justify-between items-center mb-4 no-print">
+          {/* <Button onClick={logout} variant="destructive" className="font-bold">Desconectar</Button> */}
           <div className='flex' style={{ gap: 16 }}>
             <GenerateDietModal 
               setRefeicoes={setRefeicoes} 
@@ -93,7 +93,7 @@ function App() {
             />
             <Button onClick={() => window.print()} variant="outline" className="font-bold">Imprimir Dieta</Button>
           </div>
-        </div> */}
+        </div>
 
         <header className="text-center mb-12">
           <h1 className="text-5xl md:text-6xl font-extrabold text-slate-800">

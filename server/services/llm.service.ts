@@ -2,13 +2,17 @@
 import { GoogleGenAI } from "@google/genai";
 
 // IMPORTANT: Replace with your actual API key, preferably from an environment variable.
-const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 
-const ai = new GoogleGenAI({
-  apiKey: API_KEY,
-});
 
 export const runLLM = async (prompt: string) => {
+  const API_KEY = process.env.GEMINI_API_KEY;
+  
+  const ai = new GoogleGenAI({
+    apiKey: API_KEY,
+  });
+  
+  console.log("API_KEY: ", API_KEY)
+  
   try {
     const result = await ai.models.generateContent({
       model: "gemini-2.5-flash",
