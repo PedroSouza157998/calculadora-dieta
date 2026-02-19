@@ -1,9 +1,9 @@
-import React, { useMemo, useState } from 'react';
-import { type MealType, type FoodNaMeal, processarDadosAlimentos } from '../data/foodTable';
+import React, { useState } from 'react';
+import { type MealType, type FoodNaMeal, type Food } from '../data/foodTable';
 import AsyncSelect from 'react-select/async';
 import { Button } from './ui/button';
-import { removeAcentos } from '@/lib/utils';
-import api from '@/services/api';
+import { getPortion, searchFood } from '@/services/api';
+import { managePortion } from '@/lib/utils';
 
 interface RefeicaoProps {
   refeicao: MealType;
@@ -11,7 +11,7 @@ interface RefeicaoProps {
   onRemoveRefeicao: (id: number) => void;
 }
 
-type OptionType = { value: string; label: string };
+type OptionType = { value: string; label: string; food: Food };
 
 const Refeicao: React.FC<RefeicaoProps> = ({ refeicao, onUpdateRefeicao, onRemoveRefeicao }) => {
   const [alimento, setAlimento] = useState<OptionType>();
@@ -22,48 +22,39 @@ const Refeicao: React.FC<RefeicaoProps> = ({ refeicao, onUpdateRefeicao, onRemov
 
 
 
-  const tabelaFoods = useMemo(() => processarDadosAlimentos(table), [table])
-
-
-  const foodOptions: OptionType[] = tabelaFoods.map(food => ({
-    value: food.id.toString(),
-    label: food.nome.charAt(0).toUpperCase() + food.nome.slice(1).toLowerCase(),
-  }));
-
-  const filterFood = (inputValue: string) => {
-    return foodOptions.filter((i) =>
-      removeAcentos(i.label.toLowerCase()).includes(removeAcentos(inputValue.toLowerCase()))
-    );
-  };
-
-  const loadOptions = (
-    inputValue: string,
-    callback: (options: OptionType[]) => void
-  ) => {
-    setTimeout(() => {
-      callback(filterFood(inputValue));
-    }, 1000);
+  const loadOptions = async (inputValue: string): Promise<OptionType[]> => {
+    if (!inputValue || inputValue.length < 2) {
+      return [];
+    }
+    try {
+      const result = await searchFood(table, inputValue);
+      const foods = result.list;
+      return foods.map((food: Food) => ({
+        value: food.id.toString(),
+        label: food.nome.charAt(0).toUpperCase() + food.nome.slice(1).toLowerCase(),
+        food: food,
+      }));
+    } catch (error) {
+      console.error("Error loading food options:", error);
+      return [];
+    }
   };
 
   const handleAddAlimento = async () => {
-    const alimentoBase = tabelaFoods.find(a => a.id === Number(alimento?.value));
+    const alimentoBase = alimento?.food;
     if (!alimentoBase) return;
     console.log(alimentoBase)
 
     let total_grams = quantidade;
     if (referencia) {
-      const {data: result, status} = await api.get("get-portion", {
-        params: {
-          foodName: alimentoBase.nome,
-          portion: referencia
+      try {
+        const result = await getPortion(table, alimentoBase.nome, referencia);
+        if (result && result.grams) {
+          total_grams = result.grams * quantidade;
         }
-      });
-
-      if(status === 200) {
-        const {grams} = result;
-        total_grams = grams * quantidade
+      } catch (error) {
+        console.error("Error getting portion:", error);
       }
-
     }
 
     console.log({ total_grams, quantidade, referencia })
@@ -101,12 +92,14 @@ const Refeicao: React.FC<RefeicaoProps> = ({ refeicao, onUpdateRefeicao, onRemov
   };
 
   const handleSelectAlimento = (option: OptionType | null) => {
-    if (option) setAlimento(option);
-
-    const alimentoBase = tabelaFoods.find(a => a.id === Number(option?.value));
-    setQuantidade(alimentoBase?.qtd || 0);
-    console.log(alimentoBase);
-    if (!alimentoBase) return;
+    if (option) {
+      setAlimento(option);
+      const alimentoBase = option.food;
+      setQuantidade(alimentoBase?.qtd || 0);
+      if (!alimentoBase) return;
+    } else {
+      setAlimento(undefined);
+    }
   }
 
   return (
@@ -189,7 +182,7 @@ const Refeicao: React.FC<RefeicaoProps> = ({ refeicao, onUpdateRefeicao, onRemov
           <li key={alimento.idUnico} className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
             <div>
               <span className="font-semibold text-slate-700">{alimento.nome.charAt(0).toUpperCase() + alimento.nome.slice(1).toLowerCase()}</span>
-              <span className="text-sm text-slate-500 ml-2">({alimento.referencia ? `${alimento.quantidadePorcao} - ${alimento.referencia}` : `${alimento.quantidade}g`})</span>
+              <span className="text-sm text-slate-500 ml-2">({alimento.referencia ? `${alimento.quantidadePorcao} ${managePortion(alimento.referencia)}` : `${alimento.quantidade}g`})</span>
             </div>
             <div className="flex items-center gap-4">
               <span className="font-bold text-slate-800">{Math.round(alimento.caloriasTotais)} kcal</span>
