@@ -25,4 +25,18 @@ export function removeAcentos(str: string) {
     }
   }
   return novastr;
-}   
+}
+
+export function managePortion(portion: string): string {
+  const values: Record<string, string> = {
+    colher_cha: "Colher de chá",
+    colher_sopa: "Colher de sopa",
+    concha: "Concha",
+    xicara: "Xícara",
+    unidade: "Unidade"
+  }
+
+  const result = values[portion]
+  return result ? result : portion
+
+}
