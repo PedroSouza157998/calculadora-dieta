@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useAuth0 } from "@auth0/auth0-react";
+// import { useAuth0 } from "@auth0/auth0-react";
 import type { MealType } from './data/foodTable';
 import Refeicao from './components/Meal';
 import { Input } from './components/ui/input';
@@ -20,7 +20,7 @@ function App() {
   //   user,
   // } = useAuth0();
 
-  const LoadingPage = <div className="flex justify-center items-center h-[100vh]"> Loading... </div>
+  // const LoadingPage = <div className="flex justify-center items-center h-[100vh]"> Loading... </div>
   // const logout = () =>
   //   auth0Logout({ logoutParams: { returnTo: window.location.origin } });
 
