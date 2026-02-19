@@ -11,8 +11,6 @@ export const runLLM = async (prompt: string) => {
     apiKey: API_KEY,
   });
   
-  console.log("API_KEY: ", API_KEY)
-  
   try {
     const result = await ai.models.generateContent({
       model: "gemini-2.5-flash",
