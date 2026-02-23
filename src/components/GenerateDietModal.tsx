@@ -14,7 +14,7 @@ const CustomModal: React.FC<CustomModalProps> = ({ isOpen, onClose, children }) 
   if (!isOpen) return null;
 
   return (<>
-    <div className="absolute inset-0 w-screen h-screen" style={{ backgroundColor: "rgba(0, 0, 0, 0.5)", left: 0, top: 0 }} onClick={onClose} />
+    <div className="fixed inset-0 w-screen h-screen z-10" style={{ backgroundColor: "rgba(0, 0, 0, 0.5)", left: 0, top: 0 }} onClick={onClose} />
     <div className="fixed min-w-2/3 bg-white inset-0 z-50 p-6 rounded-lg shadow-lg" style={{ padding: "2rem", gap: 6, left: "calc((2/3 * 100%) - 50%)", top: "4rem" }}>
       {children}
     </div>
@@ -39,12 +39,10 @@ const GenerateDietModal: React.FC<GenerateDietModalProps> = ({
 
   const handleGenerateDiet = async () => {
 
-    const {data: newRefeicoes, status} = await api.post('generate-diet', {
-      body: {
+    const {data: newRefeicoes, status} = await api.post('food/generate-diet', {      
         dietType, 
         allergies, 
         targetCalories
-      }
     });
 
     if(status !== 200) {
